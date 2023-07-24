@@ -43,6 +43,7 @@ class AUIRoomManagerImpl(
     private val rtmClient: RtmClient? = null,
 ) : IAUIRoomManager, AUIRtmMsgProxyDelegate, AUIRtmErrorProxyDelegate {
 
+    private val logger = AUILogger(AUILogger.Config(commonConfig.context, "AUIRoomManagerImpl"))
     private val subChannelMsg = AtomicBoolean(false)
     private val subChannelStream = AtomicBoolean(false)
 
@@ -244,6 +245,7 @@ class AUIRoomManagerImpl(
     }
 
     override fun kickUser(roomId: String, userId: Int, callback: AUICallback?) {
+        logger.d("AUIRoomManagerImpl", "kickUser start ...")
         HttpManager.getService(UserInterface::class.java)
             .kickOut(
                 KickUserReq(
@@ -258,16 +260,19 @@ class AUIRoomManagerImpl(
                     if (response.body()?.code == 0 && rsp != null) {
                         ThreadManager.getInstance().runOnMainThread{
                             callback?.onResult(null)
+                            logger.d("AUIRoomManagerImpl", "kickUser suc ...")
                         }
                     } else {
                         ThreadManager.getInstance().runOnMainThread{
                             callback?.onResult(Utils.errorFromResponse(response))
+                            logger.d("AUIRoomManagerImpl", "kickUser fail ${response.code()}  ${response.message()}")
                         }
                     }
                 }
                 override fun onFailure(call: Call<CommonResp<KickUserRsp>>, t: Throwable) {
                     ThreadManager.getInstance().runOnMainThread{
                         callback?.onResult(AUIException(-1, t.message))
+                        logger.d("AUIRoomManagerImpl", "kickUser fail ...")
                     }
                 }
             })

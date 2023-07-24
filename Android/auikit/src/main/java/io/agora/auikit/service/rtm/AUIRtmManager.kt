@@ -117,10 +117,13 @@ class AUIRtmManager(
                 option.withPresence = true
                 rtmClient.subscribe(channelName, option, object : ResultCallback<Void> {
                     override fun onSuccess(responseInfo: Void?) {
+                        logger.d("AUIRtmManager", "subscribe MESSAGE onSuccess ...")
                         completion.invoke(null)
                     }
 
                     override fun onFailure(errorInfo: ErrorInfo?) {
+                        logger.d("AUIRtmManager",
+                            "subscribe MESSAGE onFailure ${errorInfo?.errorCode} ${errorInfo?.errorReason} ${errorInfo?.operation}")
                         if (errorInfo != null) {
                             completion.invoke(
                                 AUIRtmException(errorInfo.errorCode, errorInfo.errorReason, errorInfo.operation)
